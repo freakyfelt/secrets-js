@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format": "prettier -w src",
+    "format:check": "prettier -c src",
+    "lint": "tsc && npm run format:check",
+    "test": "tsx --test src/**/*.test.ts && npm run format"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +18,10 @@
     "@aws-sdk/client-secrets-manager": "^3.934.0"
   },
   "devDependencies": {
-    "@testcontainers/localstack": "^11.8.1"
+    "@testcontainers/localstack": "^11.8.1",
+    "@tsconfig/node22": "^22.0.5",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

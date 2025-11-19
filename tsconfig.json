@@ -1,0 +1,7 @@
+{
+  "extends": "@tsconfig/node22",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  }
+}

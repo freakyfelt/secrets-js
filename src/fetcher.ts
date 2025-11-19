@@ -1,0 +1,36 @@
+import { GetSecretValueRequest } from "@aws-sdk/client-secrets-manager";
+import { SecretValue } from "./secret-value.ts";
+import { SecretsManager } from "./types.ts";
+
+export type FetchOptions = Omit<GetSecretValueRequest, "SecretId">;
+
+export class SecretsFetcher {
+  constructor(private client: SecretsManager) {}
+
+  /**
+   * Shorthand method for fetching the latest version of the secret from the ARN
+   *
+   * @param input
+   * @returns the resolved secret
+   */
+  async fetchString(secretId: string, opts?: FetchOptions): Promise<string> {
+    const res = await this.fetch(secretId, opts);
+
+    return res.text();
+  }
+
+  async fetchJson(secretId: string, opts?: FetchOptions): Promise<unknown> {
+    const res = await this.fetch(secretId, opts);
+
+    return res.json();
+  }
+
+  async fetch(secretId: string, opts?: FetchOptions): Promise<SecretValue> {
+    const res = await this.client.getSecretValue({
+      ...opts,
+      SecretId: secretId,
+    });
+
+    return new SecretValue(res);
+  }
+}
