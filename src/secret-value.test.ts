@@ -1,12 +1,6 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
 import util from "node:util";
-import { SecretValue } from "./secret-value.ts";
-import {
-  InvalidSecretError,
-  SecretParseError,
-  UnsupportedOperationError,
-} from "./errors.ts";
 import {
   EXAMPLE_JSON,
   EXAMPLE_STRING,
@@ -14,6 +8,12 @@ import {
   toGetBinarySecretResponse,
   toGetSecretResponse,
 } from "../test/fixtures.ts";
+import {
+  InvalidSecretError,
+  SecretParseError,
+  UnsupportedOperationError,
+} from "./errors.ts";
+import { SecretValue } from "./secret-value.ts";
 
 describe("SecretValue", () => {
   const emptySecret = new SecretValue({});

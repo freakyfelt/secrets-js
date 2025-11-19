@@ -1,15 +1,15 @@
+import { ResourceNotFoundException } from "@aws-sdk/client-secrets-manager";
 import assert from "node:assert";
 import { after, before, describe, it } from "node:test";
-import { ResourceNotFoundException } from "@aws-sdk/client-secrets-manager";
-import { LocalSecretsManager } from "../test/local-secrets-manager.ts";
-import { InvalidSecretError, SecretParseError } from "./errors.ts";
-import { SecretsFetcher } from "./fetcher.ts";
 import {
   EXAMPLE_JSON,
   EXAMPLE_JSON_STRING,
   EXAMPLE_STRING,
   EXAMPLE_STRING_BUFFER,
 } from "../test/fixtures.ts";
+import { LocalSecretsManager } from "../test/local-secrets-manager.ts";
+import { InvalidSecretError, SecretParseError } from "./errors.ts";
+import { SecretsFetcher } from "./fetcher.ts";
 
 describe("SecretsFetcher", async () => {
   const container = await new LocalSecretsManager().start();
