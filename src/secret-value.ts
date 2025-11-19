@@ -42,6 +42,9 @@ export class SecretValue {
     return String(this.#content.type) as SecretPayloadType;
   }
 
+  /**
+   * Converts the SecretString or SecretBinary content into a Buffer
+   */
   async bytes(): Promise<Uint8Array> {
     if (this.#content === null) {
       throw new InvalidSecretError("Invalid content payload", this.#arn);
@@ -58,7 +61,7 @@ export class SecretValue {
   /**
    * Parses the contents of SecretString as JSON, throwing a SecretParseError on failure to do so
    *
-   * @throws {InvalidSecretError} the SecretString field is not populated
+   * @throws {UnsupportedOperationError} the SecretString field is not populated
    * @throws {SecretParseError} the contents of SecretString is not valid JSON
    */
   async json(): Promise<unknown> {
@@ -79,6 +82,8 @@ export class SecretValue {
    * Returns the raw response body from the GetSecretValue API call
    */
   async raw(): Promise<GetSecretValueResponse> {
+    // NOTE: this still risks poisoning VersionStages, $metadata, etc., but not the secret itself
+    // TBD if we need to actually do a deep copy which would require handling the SecretBinary
     return { ...this.#input };
   }
 
@@ -87,6 +92,37 @@ export class SecretValue {
    */
   async text(): Promise<string> {
     return this.getStringValue();
+  }
+
+  /**
+   * Custom inspect method to show only the following information in console.log() calls:
+   * - ARN
+   * - Name
+   * - VersionId
+   * - VersionStages
+   *
+   * The output will also indicate the content type ("string", "binary") in parenthesis
+   */
+  [Symbol.for("nodejs.util.inspect.custom")](
+    depth: number,
+    options: any,
+    inspect: any,
+  ) {
+    if (depth <= 0) {
+      return options.stylize(
+        `[SecretValue(${this.#content?.type})]`,
+        "special",
+      );
+    }
+
+    const newOptions = Object.assign({}, options, {
+      depth: options.depth === null ? null : options.depth - 1,
+    });
+
+    const { ARN, Name, VersionId, VersionStages } = this.#input;
+    const inner = inspect({ ARN, Name, VersionId, VersionStages }, newOptions);
+
+    return `${options.stylize(`SecretValue(${this.#content?.type})`, "special")} ${inner}`;
   }
 
   private getStringValue(): string {

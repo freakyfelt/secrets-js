@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import util from "node:util";
+import { inspect } from "node:util";
 import {
   EXAMPLE_JSON,
   EXAMPLE_STRING,
@@ -40,11 +40,6 @@ describe("SecretValue", () => {
       () => new SecretValue({ ...stringSecretRes, ...stringBinaryRes }),
       InvalidSecretError,
     );
-  });
-
-  it("does not divulge private fields if stringified", () => {
-    const formatted = util.format(stringSecret);
-    assert.equal(formatted, "SecretValue {}");
   });
 
   describe("SecretValue.arn", () => {
@@ -136,6 +131,34 @@ describe("SecretValue", () => {
         () => stringBinarySecret.text(),
         UnsupportedOperationError,
       );
+    });
+  });
+
+  describe("inspect()", () => {
+    it("with string secret redacts to expected string", () => {
+      const { ARN, Name, VersionId, VersionStages } = stringSecretRes;
+
+      const expected = `SecretValue(string) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const actual = inspect(stringSecret);
+      assert.equal(actual, expected);
+    });
+
+    it("with string secret and depth=0 redacts string to small variant", () => {
+      const actual = inspect(stringSecret, undefined, 0);
+      assert.equal(actual, "[SecretValue(string)]");
+    });
+
+    it("with binary secret redacts to expected string", () => {
+      const { ARN, Name, VersionId, VersionStages } = stringBinaryRes;
+
+      const expected = `SecretValue(binary) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const actual = inspect(stringBinarySecret);
+      assert.equal(actual, expected);
+    });
+
+    it("with binary secret and depth=0 redacts string to small variant", () => {
+      const actual = inspect(stringBinarySecret, undefined, 0);
+      assert.equal(actual, "[SecretValue(binary)]");
     });
   });
 });

@@ -1,6 +1,7 @@
 import { ResourceNotFoundException } from "@aws-sdk/client-secrets-manager";
 import assert from "node:assert";
 import { after, before, describe, it } from "node:test";
+import { inspect } from "node:util";
 import {
   EXAMPLE_JSON,
   EXAMPLE_JSON_STRING,
@@ -46,6 +47,17 @@ describe("SecretsFetcher", async () => {
       const res = await fetcher.fetch(stringArn);
 
       assert.equal(res.arn, stringArn);
+    });
+
+    it("still redacts to the expected value", async () => {
+      const res = await fetcher.fetch(stringArn);
+      const raw = await res.raw();
+
+      const { ARN, Name, VersionId, VersionStages } = raw;
+      const expected = `SecretValue(string) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const actual = inspect(res);
+
+      assert.equal(actual, expected);
     });
 
     it("returns the SecretValue for the buffer ARN", async () => {

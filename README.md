@@ -39,7 +39,7 @@ Once initialized you are able to call the `fetch()` method with the ARN of the s
 // returns a SecretValue
 const dbCreds = await secretsFetcher.fetch("arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c");
 
-// Will output "SecretValue {}" instead of the raw input object
+// Will output "SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", VersionStages: [...] }" instead of the raw input object
 console.log(dbCreds)
 dbCreds.arn // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
 
