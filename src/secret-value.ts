@@ -4,51 +4,19 @@ import {
   SecretParseError,
   UnsupportedOperationError,
 } from "./errors.ts";
+import { getSecretContent, SecretContent } from "./utils/secret-content.ts";
 
 export type SecretPayloadType = "string" | "binary";
-
-type SecretString = {
-  type: "string";
-  content: string;
-};
-
-type SecretBinary = {
-  type: "binary";
-  content: Uint8Array;
-};
-
-type SecretContent = SecretString | SecretBinary;
-
-/**
- * Converts the secret response into a union type for easier type checking
- */
-function getSecretContent(
-  input: Pick<GetSecretValueResponse, "SecretString" | "SecretBinary">,
-): SecretContent | null {
-  if (typeof input.SecretString === "string") {
-    return {
-      type: "string",
-      content: input.SecretString,
-    };
-  } else if (typeof input.SecretBinary !== "undefined") {
-    return {
-      type: "binary",
-      content: input.SecretBinary,
-    };
-  } else {
-    return null;
-  }
-}
 
 export class SecretValue {
   constructor(input: GetSecretValueResponse) {
     this.#input = { ...input };
-    this.#arn = input.ARN;
+    this.#arn = input.ARN ?? null;
     this.#content = getSecretContent(input);
   }
 
   #input: GetSecretValueResponse;
-  #arn: string | undefined;
+  #arn: string | null;
   #content: SecretContent | null;
   #json: unknown;
 
@@ -56,7 +24,7 @@ export class SecretValue {
    * The ARN of the secret
    */
   get arn(): string {
-    if (this.#arn === "") {
+    if (this.#arn === null) {
       throw new InvalidSecretError("Missing ARN in response", this.#arn);
     }
 
@@ -87,6 +55,12 @@ export class SecretValue {
     }
   }
 
+  /**
+   * Parses the contents of SecretString as JSON, throwing a SecretParseError on failure to do so
+   *
+   * @throws {InvalidSecretError} the SecretString field is not populated
+   * @throws {SecretParseError} the contents of SecretString is not valid JSON
+   */
   async json(): Promise<unknown> {
     if (typeof this.#json === "undefined") {
       try {
@@ -99,23 +73,21 @@ export class SecretValue {
     return this.#json;
   }
 
+  /**
+   * Returns a string with the contents of `SecretString`
+   */
   async text(): Promise<string> {
     return this.getStringValue();
   }
 
   private getStringValue(): string {
-    if (this.#content === null) {
-      throw new InvalidSecretError("Invalid content payload", this.#arn);
+    if (this.#content?.type !== "string") {
+      throw new UnsupportedOperationError(
+        "Cannot convert binary secrets to text",
+        this.#arn,
+      );
     }
 
-    switch (this.#content.type) {
-      case "string":
-        return String(this.#content.content);
-      default:
-        throw new UnsupportedOperationError(
-          "Cannot convert binary secrets to text",
-          this.#arn,
-        );
-    }
+    return String(this.#content.content);
   }
 }

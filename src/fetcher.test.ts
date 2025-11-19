@@ -1,9 +1,9 @@
 import assert from "node:assert";
 import { after, before, describe, it } from "node:test";
-import { LocalSecretsManager } from "../test/local-secrets-manager.ts";
-import { SecretsFetcher } from "./fetcher.ts";
-import { InvalidSecretError, SecretParseError } from "./errors.ts";
 import { ResourceNotFoundException } from "@aws-sdk/client-secrets-manager";
+import { LocalSecretsManager } from "../test/local-secrets-manager.ts";
+import { InvalidSecretError, SecretParseError } from "./errors.ts";
+import { SecretsFetcher } from "./fetcher.ts";
 import {
   EXAMPLE_JSON,
   EXAMPLE_JSON_STRING,

@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import util from "node:util";
 import { describe, it } from "node:test";
+import util from "node:util";
 import { SecretValue } from "./secret-value.ts";
 import {
   InvalidSecretError,
@@ -16,6 +16,7 @@ import {
 } from "../test/fixtures.ts";
 
 describe("SecretValue", () => {
+  const emptySecret = new SecretValue({});
   const stringBinaryRes = toGetBinarySecretResponse(
     "secrets/test/string_buffer",
     EXAMPLE_STRING_BUFFER,
@@ -34,6 +35,13 @@ describe("SecretValue", () => {
   );
   const stringSecret = new SecretValue(stringSecretRes);
 
+  it("throws if both SecretString and SecretBinary are defined", () => {
+    assert.throws(
+      () => new SecretValue({ ...stringSecretRes, ...stringBinaryRes }),
+      InvalidSecretError,
+    );
+  });
+
   it("does not divulge private fields if stringified", () => {
     const formatted = util.format(stringSecret);
     assert.equal(formatted, "SecretValue {}");
@@ -45,7 +53,7 @@ describe("SecretValue", () => {
     });
 
     it("with an empty ARN throws InvalidSecretError", () => {
-      assert.throws(() => new SecretValue({}).payloadType, InvalidSecretError);
+      assert.throws(() => emptySecret.payloadType, InvalidSecretError);
     });
   });
 
@@ -54,8 +62,12 @@ describe("SecretValue", () => {
       assert.equal(stringSecret.payloadType, "string");
     });
 
+    it("with a SecretBinary content returns binary", () => {
+      assert.equal(stringBinarySecret.payloadType, "binary");
+    });
+
     it("with neither secret payload throws InvalidSecretError", () => {
-      assert.throws(() => new SecretValue({}).payloadType, InvalidSecretError);
+      assert.throws(() => emptySecret.payloadType, InvalidSecretError);
     });
   });
 

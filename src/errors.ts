@@ -11,7 +11,7 @@ export class SecretsError extends Error {
  * A class of errors around a specific SecretValue
  */
 export class InvalidSecretError extends SecretsError {
-  constructor(msg: string, arn: string | undefined) {
+  constructor(msg: string, arn: string | null) {
     super(msg, { arn });
   }
 }
