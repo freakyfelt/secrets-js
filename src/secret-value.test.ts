@@ -2,7 +2,11 @@ import assert from "node:assert";
 import util from "node:util";
 import { describe, it } from "node:test";
 import { SecretValue } from "./secret-value.ts";
-import { InvalidSecretError, SecretParseError } from "./errors.ts";
+import {
+  InvalidSecretError,
+  SecretParseError,
+  UnsupportedOperationError,
+} from "./errors.ts";
 import {
   EXAMPLE_JSON,
   EXAMPLE_STRING,
@@ -92,6 +96,13 @@ describe("SecretValue", () => {
       const res = await jsonSecret.text();
 
       assert.equal(res, JSON.stringify(EXAMPLE_JSON));
+    });
+
+    it("with binary throws UnsupportedOperationError", () => {
+      assert.rejects(
+        () => stringBinarySecret.text(),
+        UnsupportedOperationError,
+      );
     });
   });
 });
