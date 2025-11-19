@@ -1,0 +1,20 @@
+{
+  "name": "@freakyfelt/secrets-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.22.0",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.934.0"
+  },
+  "devDependencies": {
+    "@testcontainers/localstack": "^11.8.1"
+  }
+}
