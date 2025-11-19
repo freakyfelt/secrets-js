@@ -13,11 +13,12 @@ Some goals:
   * return copies of data to avoid poisoning
   * do not let exceptions bubble up where secret material is present
 * **Keep it natural**: make fetching secrets as easy as using `fetch()`
-  * includes `text()`, `bytes()`, and `json()` methods with safer exception handling
+  * includes `text()`, `json()`, and `bytes()` methods with safer exception handling
   * handles switching between `SecretString` and `SecretBinary` where possible
 * **Keep it simple**: aim to keep layers of indirection minimal
   * Keep variable names close to the same (e.g. `secretId` when the API field is `SecretId`)
   * Let AWS-provided exceptions bubble up when safe to do so
+  * Provides the `raw()` response
 
 ## Getting started
 

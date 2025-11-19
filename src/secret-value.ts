@@ -63,14 +63,23 @@ export class SecretValue {
    */
   async json(): Promise<unknown> {
     if (typeof this.#json === "undefined") {
+      const str = this.getStringValue();
+
       try {
-        this.#json = JSON.parse(this.getStringValue());
+        this.#json = JSON.parse(str);
       } catch (err: unknown) {
         throw new SecretParseError("Could not parse secret as JSON", this.#arn);
       }
     }
 
     return this.#json;
+  }
+
+  /**
+   * Returns the raw response body from the GetSecretValue API call
+   */
+  async raw(): Promise<GetSecretValueResponse> {
+    return { ...this.#input };
   }
 
   /**

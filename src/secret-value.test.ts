@@ -95,6 +95,27 @@ describe("SecretValue", () => {
     it("with invalid JSON throws SecretParseError", async () => {
       assert.rejects(() => stringSecret.json(), SecretParseError);
     });
+
+    it("with a binary secret throws UnsupportedOperationError", async () => {
+      await assert.rejects(
+        () => stringBinarySecret.json(),
+        UnsupportedOperationError,
+      );
+    });
+  });
+
+  describe("raw()", () => {
+    it("returns the raw payload for StringSecret objects", async () => {
+      const res = await stringSecret.raw();
+
+      assert.deepEqual(res, stringSecretRes);
+    });
+
+    it("returns the raw payload for StringSecret objects", async () => {
+      const res = await stringBinarySecret.raw();
+
+      assert.deepEqual(res, stringBinaryRes);
+    });
   });
 
   describe("text()", () => {
@@ -110,8 +131,8 @@ describe("SecretValue", () => {
       assert.equal(res, JSON.stringify(EXAMPLE_JSON));
     });
 
-    it("with binary throws UnsupportedOperationError", () => {
-      assert.rejects(
+    it("with a binary secret throws UnsupportedOperationError", async () => {
+      await assert.rejects(
         () => stringBinarySecret.text(),
         UnsupportedOperationError,
       );
