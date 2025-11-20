@@ -17,6 +17,9 @@ describe("SecretsFetcher", async () => {
   const client = container.getClient();
   const fetcher = new SecretsFetcher(client);
 
+  const fetchRaw = async (secretId: string, ...rest: any) =>
+    (await fetcher.fetch(secretId, ...rest)).raw();
+
   let stringArn: string;
   let jsonArn: string;
   let bufferArn: string;
@@ -71,6 +74,74 @@ describe("SecretsFetcher", async () => {
         () => fetcher.fetchString("arn:aws:invalid-arn"),
         ResourceNotFoundException,
       );
+    });
+
+    it("with multiple versions and a provided VersionId fetches the previous revision", async () => {
+      const secretId = "fetcher/test/multiple_versions_by_id";
+
+      // In case it's present
+      try {
+        await client.deleteSecret({
+          SecretId: secretId,
+        });
+      } catch (err) {
+        // pass
+      }
+
+      const originalSecret = await client.createSecret({
+        Name: secretId,
+        SecretString: EXAMPLE_STRING,
+      });
+      const originalArn = originalSecret.ARN!;
+      const originalRaw = await fetchRaw(originalArn);
+
+      const updatedSecret = await client.putSecretValue({
+        SecretId: originalArn,
+        SecretString: "updated secret",
+      });
+      assert.equal(updatedSecret.ARN, originalArn);
+      assert.notEqual(updatedSecret.VersionId, originalSecret.VersionId);
+
+      const afterUpdateRaw = await fetchRaw(originalArn, {
+        VersionId: originalSecret.VersionId,
+      });
+      assert.equal(afterUpdateRaw.VersionId, originalRaw.VersionId);
+      assert.equal(afterUpdateRaw.SecretString, EXAMPLE_STRING);
+      assert.deepEqual(afterUpdateRaw.VersionStages, ["AWSPREVIOUS"]);
+    });
+
+    it("with multiple versions and a provided VersionStage fetches the previous revision", async () => {
+      const secretId = "fetcher/test/multiple_versions_by_stage";
+
+      // In case it's present
+      try {
+        await client.deleteSecret({
+          SecretId: secretId,
+        });
+      } catch (err) {
+        // pass
+      }
+
+      const originalSecret = await client.createSecret({
+        Name: secretId,
+        SecretString: EXAMPLE_STRING,
+      });
+      const originalArn = originalSecret.ARN!;
+      const originalRaw = await fetchRaw(originalArn);
+
+      const updatedSecret = await client.putSecretValue({
+        SecretId: originalArn,
+        SecretString: "updated secret",
+      });
+      assert.equal(updatedSecret.ARN, originalArn);
+      assert.notEqual(updatedSecret.VersionId, originalSecret.VersionId);
+
+      const afterUpdateRaw = await fetchRaw(originalArn, {
+        VersionStage: "AWSPREVIOUS",
+      });
+      assert.equal(afterUpdateRaw.VersionId, originalRaw.VersionId);
+      assert.equal(afterUpdateRaw.SecretString, EXAMPLE_STRING);
+      assert.deepEqual(afterUpdateRaw.VersionStages, ["AWSPREVIOUS"]);
     });
   });
 

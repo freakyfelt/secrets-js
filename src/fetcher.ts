@@ -8,7 +8,7 @@ export class SecretsFetcher {
   constructor(private client: SecretsManager) {}
 
   /**
-   * Shorthand method for fetching the latest version of the secret from the ARN
+   * Shorthand method for fetching the string representation of the SecretString
    *
    * @param input
    * @returns the resolved secret
@@ -19,6 +19,9 @@ export class SecretsFetcher {
     return res.text();
   }
 
+  /**
+   * Shorthand method for fetching the JSON representation of the SecretString
+   */
   async fetchJson(secretId: string, opts?: FetchOptions): Promise<unknown> {
     const res = await this.fetch(secretId, opts);
 
