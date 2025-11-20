@@ -44,7 +44,7 @@ describe("SecretValue", () => {
 
   describe("SecretValue.arn", () => {
     it("returns the ARN", () => {
-      assert.equal(stringSecret.arn, stringSecretRes.ARN!);
+      assert.equal(stringSecret.ARN, stringSecretRes.ARN!);
     });
 
     it("with an empty ARN throws InvalidSecretError", () => {
@@ -136,9 +136,9 @@ describe("SecretValue", () => {
 
   describe("inspect()", () => {
     it("with string secret redacts to expected string", () => {
-      const { ARN, Name, VersionId, VersionStages } = stringSecretRes;
+      const { Name, VersionId } = stringSecretRes;
 
-      const expected = `SecretValue(string) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const expected = `SecretValue(string) ${inspect({ Name, VersionId })}`;
       const actual = inspect(stringSecret);
       assert.equal(actual, expected);
     });
@@ -149,9 +149,9 @@ describe("SecretValue", () => {
     });
 
     it("with binary secret redacts to expected string", () => {
-      const { ARN, Name, VersionId, VersionStages } = stringBinaryRes;
+      const { Name, VersionId } = stringBinaryRes;
 
-      const expected = `SecretValue(binary) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const expected = `SecretValue(binary) ${inspect({ Name, VersionId })}`;
       const actual = inspect(stringBinarySecret);
       assert.equal(actual, expected);
     });

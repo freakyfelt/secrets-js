@@ -79,5 +79,28 @@ const awsPrevious = await secretsFetcher.fetch(arn, { VersionStage: "AWSPREVIOUS
 const awsCurrent = await secretsFetcher.fetch(arn, { VersionStage: "AWSCURRENT" });
 ```
 
+### Choosing visible fields in console and error details
+
+!!! warning
+
+    Be cautious when exposing sensitive information in console output and error details. Ensure that you are not logging or displaying sensitive data unintentionally.
+
+By default the library will only show the `Name` and `VersionId` fields of the secret in console output and error details to protect sensitive information. If you need to see more fields, you can configure the library to show them by setting the `safeFields` option when creating the `SecretsFetcher` instance:
+
+```typescript
+const secretsFetcher = new SecretsFetcher({
+  // WARNING: Not recommended to show CreatedDate and ARN for production environments
+  safeFields: ['ARN', 'Name', 'VersionId', 'CreatedDate'],
+});
+
+const secret = await secretsFetcher.fetch(arn);
+console.log(secret);
+// => SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", CreatedDate: "..." }
+
+const json = await secret.json()
+// new SecretParseError("Could not parse secret value as JSON", { ARN, Name, VersionId, CreatedDate })
+```
+
+Note that the system will never allow `SecretString` or `SecretBinary` to be shown in console output or error details.
 
 [aws:getsecretvalue]: https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
