@@ -1,3 +1,5 @@
+import { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
+
 export class SecretsError extends Error {
   constructor(
     msg: string,
@@ -11,8 +13,8 @@ export class SecretsError extends Error {
  * A class of errors around a specific SecretValue
  */
 export class InvalidSecretError extends SecretsError {
-  constructor(msg: string, arn: string | null) {
-    super(msg, { arn });
+  constructor(msg: string, safeFields: GetSecretValueResponse) {
+    super(msg, { ...safeFields });
   }
 }
 

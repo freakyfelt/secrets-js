@@ -4,18 +4,24 @@ import {
   SecretParseError,
   UnsupportedOperationError,
 } from "./errors.ts";
+import { toSafeSecretFields } from "./utils/safe-secret-fields.ts";
 import { getSecretContent, SecretContent } from "./utils/secret-content.ts";
 
 export type SecretPayloadType = "string" | "binary";
 
 export class SecretValue {
-  constructor(input: GetSecretValueResponse) {
+  constructor(
+    input: GetSecretValueResponse,
+    safeFields?: GetSecretValueResponse,
+  ) {
     this.#input = { ...input };
+    this.#safeFields = safeFields ?? toSafeSecretFields(input);
     this.#arn = input.ARN ?? null;
     this.#content = getSecretContent(input);
   }
 
   #input: GetSecretValueResponse;
+  #safeFields: GetSecretValueResponse;
   #arn: string | null;
   #content: SecretContent | null;
   #json: unknown;
@@ -23,9 +29,9 @@ export class SecretValue {
   /**
    * The ARN of the secret
    */
-  get arn(): string {
+  get ARN(): string {
     if (this.#arn === null) {
-      throw new InvalidSecretError("Missing ARN in response", this.#arn);
+      throw new InvalidSecretError("Missing ARN in response", this.#safeFields);
     }
 
     return String(this.#arn);
@@ -36,7 +42,7 @@ export class SecretValue {
    */
   get payloadType(): SecretPayloadType {
     if (this.#content === null) {
-      throw new InvalidSecretError("Invalid content payload", this.#arn);
+      throw new InvalidSecretError("Invalid content payload", this.#safeFields);
     }
 
     return String(this.#content.type) as SecretPayloadType;
@@ -47,7 +53,7 @@ export class SecretValue {
    */
   async bytes(): Promise<Uint8Array> {
     if (this.#content === null) {
-      throw new InvalidSecretError("Invalid content payload", this.#arn);
+      throw new InvalidSecretError("Invalid content payload", this.#safeFields);
     }
 
     switch (this.#content.type) {
@@ -71,7 +77,10 @@ export class SecretValue {
       try {
         this.#json = JSON.parse(str);
       } catch (err: unknown) {
-        throw new SecretParseError("Could not parse secret as JSON", this.#arn);
+        throw new SecretParseError(
+          "Could not parse secret as JSON",
+          this.#safeFields,
+        );
       }
     }
 
@@ -119,8 +128,7 @@ export class SecretValue {
       depth: options.depth === null ? null : options.depth - 1,
     });
 
-    const { ARN, Name, VersionId, VersionStages } = this.#input;
-    const inner = inspect({ ARN, Name, VersionId, VersionStages }, newOptions);
+    const inner = inspect(this.#safeFields, newOptions);
 
     return `${options.stylize(`SecretValue(${this.#content?.type})`, "special")} ${inner}`;
   }
@@ -129,7 +137,7 @@ export class SecretValue {
     if (this.#content?.type !== "string") {
       throw new UnsupportedOperationError(
         "Cannot convert binary secrets to text",
-        this.#arn,
+        this.#safeFields,
       );
     }
 

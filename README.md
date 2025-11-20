@@ -41,7 +41,7 @@ const dbCreds = await secretsFetcher.fetch("arn:aws:secretsmanager:us-east-1:012
 
 // Will output "SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", VersionStages: [...] }" instead of the raw input object
 console.log(dbCreds)
-dbCreds.arn // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
+dbCreds.ARN // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
 
 // "string" if the secret was stored as a string, "binary" if the secret was stored as a binary
 dbCreds.payloadType // => "string"
@@ -49,8 +49,8 @@ dbCreds.payloadType // => "string"
 // text() returns the text from the `SecretString` field
 const str = await dbCreds.text();
 
-// json() method parses the `SecretString` field to JSON or safely throws a SecretParseError with only the ARN if unparseable
-const { hostname, username, password } = await dbCreds.json(); // => SecretParseError("Could not parse secret as JSON", { arn })
+// json() method parses the `SecretString` field to JSON or safely throws a SecretParseError with only the Name and VersionId if unparseable
+const { hostname, username, password } = await dbCreds.json(); // => SecretParseError("Could not parse secret as JSON", { Name, VersionId })
 
 // bytes() returns a Buffer for cases such as X.509 certificates. Will also convert string secrets to a buffer
 const buf = await dbCreds.bytes();
@@ -79,5 +79,28 @@ const awsPrevious = await secretsFetcher.fetch(arn, { VersionStage: "AWSPREVIOUS
 const awsCurrent = await secretsFetcher.fetch(arn, { VersionStage: "AWSCURRENT" });
 ```
 
+### Choosing visible fields in console and error details
+
+!!! warning
+
+    Be cautious when exposing sensitive information in console output and error details. Ensure that you are not logging or displaying sensitive data unintentionally.
+
+By default the library will only show the `Name` and `VersionId` fields of the secret in console output and error details to protect sensitive information. If you need to see more fields, you can configure the library to show them by setting the `safeFields` option when creating the `SecretsFetcher` instance:
+
+```typescript
+const secretsFetcher = new SecretsFetcher({
+  // WARNING: Not recommended to show CreatedDate and ARN for production environments
+  safeFields: ['ARN', 'Name', 'VersionId', 'CreatedDate'],
+});
+
+const secret = await secretsFetcher.fetch(arn);
+console.log(secret);
+// => SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", CreatedDate: "..." }
+
+const json = await secret.json()
+// new SecretParseError("Could not parse secret value as JSON", { ARN, Name, VersionId, CreatedDate })
+```
+
+Note that the system will never allow `SecretString` or `SecretBinary` to be shown in console output or error details.
 
 [aws:getsecretvalue]: https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html

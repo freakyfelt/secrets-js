@@ -1,5 +1,6 @@
 import { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
 import { InvalidSecretError } from "../errors.ts";
+import { toSafeSecretFields } from "./safe-secret-fields.ts";
 
 export type SecretString = {
   type: "string";
@@ -23,7 +24,7 @@ export function getSecretContent(
     if (typeof input.SecretBinary !== "undefined") {
       throw new InvalidSecretError(
         "Both SecretString and SecretBinary defined",
-        input.ARN ?? null,
+        toSafeSecretFields(input),
       );
     }
     return {

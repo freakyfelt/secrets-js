@@ -1,4 +1,5 @@
 import { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
+import crypto from "node:crypto";
 
 export const EXAMPLE_JSON = {
   str: "hello world",
@@ -23,7 +24,7 @@ export const toGetSecretResponse = (
 ): GetSecretValueResponse => ({
   ARN: `arn:aws:secretsmanager:us-east-1:01234567890:secret:${name}-1a2b3c`,
   Name: name,
-  VersionId: "1a2b3c",
+  VersionId: crypto.randomUUID(),
   SecretString: content,
   VersionStages: ["AWSCURRENT"],
   CreatedDate: new Date("2022-01-23T12:34:56.000Z"),

@@ -10,8 +10,9 @@
     "format": "prettier -w src test",
     "format:check": "prettier -c src test",
     "lint": "tsc && npm run format:check",
-    "test": "tsx --test src/**/*.test.ts && npm run format",
-    "test:ci": "tsx --test src/**/*.test.ts"
+    "prepublishOnly": "npm run build",
+    "test": "tsx --test src/*.test.ts src/**/*.test.ts && npm run format",
+    "test:ci": "tsx --test src/*.test.ts src/**/*.test.ts"
   },
   "keywords": [
     "aws",

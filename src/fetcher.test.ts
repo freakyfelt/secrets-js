@@ -45,19 +45,67 @@ describe("SecretsFetcher", async () => {
     await container.stop();
   });
 
+  describe("safeFields", () => {
+    it("with overridden safeFields inspect only includes the safe fields of the SecretValue", async () => {
+      const fetcher = new SecretsFetcher(client, {
+        safeFields: ["ARN", "Name"],
+      });
+      const res = await fetcher.fetch(stringArn);
+      const raw = await res.raw();
+
+      const actual = inspect(res);
+      const expected = `SecretValue(string) ${inspect({ ARN: raw.ARN, Name: raw.Name })}`;
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it("with overridden safeFields including SecretString inspect only includes the safe fields of the SecretValue", async () => {
+      const fetcher = new SecretsFetcher(client, {
+        safeFields: ["ARN", "Name", "SecretString"],
+      });
+      const res = await fetcher.fetch(stringArn);
+      const raw = await res.raw();
+
+      const actual = inspect(res);
+      const expected = `SecretValue(string) ${inspect({ ARN: raw.ARN, Name: raw.Name })}`;
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it("with overridden safeFields errors only contain specified fields", async () => {
+      const fetcher = new SecretsFetcher(client, {
+        safeFields: ["ARN", "Name"],
+      });
+      const res = await fetcher.fetch(stringArn);
+      const raw = await res.raw();
+
+      const expected = { ARN: raw.ARN, Name: raw.Name };
+      await assert.rejects(
+        () => res.json(),
+        (err) => {
+          if (!(err instanceof SecretParseError)) {
+            return false;
+          }
+          assert.deepEqual(err.details, expected);
+          return true;
+        },
+      );
+    });
+  });
+
   describe("fetch", () => {
     it("returns the SecretValue for the string ARN", async () => {
       const res = await fetcher.fetch(stringArn);
 
-      assert.equal(res.arn, stringArn);
+      assert.equal(res.ARN, stringArn);
     });
 
     it("still redacts to the expected value", async () => {
       const res = await fetcher.fetch(stringArn);
       const raw = await res.raw();
 
-      const { ARN, Name, VersionId, VersionStages } = raw;
-      const expected = `SecretValue(string) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const { Name, VersionId } = raw;
+      const expected = `SecretValue(string) ${inspect({ Name, VersionId })}`;
       const actual = inspect(res);
 
       assert.equal(actual, expected);
@@ -66,7 +114,7 @@ describe("SecretsFetcher", async () => {
     it("returns the SecretValue for the buffer ARN", async () => {
       const res = await fetcher.fetch(bufferArn);
 
-      assert.equal(res.arn, bufferArn);
+      assert.equal(res.ARN, bufferArn);
     });
 
     it("with an invalid ARN throws the underlying ResourceNotFoundException", async () => {
