@@ -1,27 +1,50 @@
 {
   "name": "@freakyfelt/secrets-js",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Client library to make secrets fetching easy and safe",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsup --clean",
+    "clean": "rm -rf dist",
     "format": "prettier -w src",
     "format:check": "prettier -c src",
     "lint": "tsc && npm run format:check",
     "test": "tsx --test src/**/*.test.ts && npm run format"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.22.0",
+  "keywords": [
+    "aws",
+    "secrets",
+    "manager",
+    "secretsmanager"
+  ],
+  "author": "Bruce Felt",
+  "license": "MIT",
   "type": "module",
-  "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.934.0"
+  "files": [
+    "dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "require": "./dist/index.cjs"
+      }
+    }
+  },
+  "peerDeependencies": {
+    "@aws-sdk/client-secrets-manager": "3.x"
   },
   "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.934.0",
     "@testcontainers/localstack": "^11.8.1",
     "@tsconfig/node22": "^22.0.5",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.3.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
