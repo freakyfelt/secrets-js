@@ -41,7 +41,7 @@ const dbCreds = await secretsFetcher.fetch("arn:aws:secretsmanager:us-east-1:012
 
 // Will output "SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", VersionStages: [...] }" instead of the raw input object
 console.log(dbCreds)
-dbCreds.arn // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
+dbCreds.ARN // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
 
 // "string" if the secret was stored as a string, "binary" if the secret was stored as a binary
 dbCreds.payloadType // => "string"
@@ -49,8 +49,8 @@ dbCreds.payloadType // => "string"
 // text() returns the text from the `SecretString` field
 const str = await dbCreds.text();
 
-// json() method parses the `SecretString` field to JSON or safely throws a SecretParseError with only the ARN if unparseable
-const { hostname, username, password } = await dbCreds.json(); // => SecretParseError("Could not parse secret as JSON", { arn })
+// json() method parses the `SecretString` field to JSON or safely throws a SecretParseError with only the Name and VersionId if unparseable
+const { hostname, username, password } = await dbCreds.json(); // => SecretParseError("Could not parse secret as JSON", { Name, VersionId })
 
 // bytes() returns a Buffer for cases such as X.509 certificates. Will also convert string secrets to a buffer
 const buf = await dbCreds.bytes();

@@ -1,7 +1,11 @@
 import { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import { toGetSecretResponse } from "../../test/fixtures.ts";
+import {
+  EXAMPLE_STRING,
+  EXAMPLE_STRING_BUFFER,
+  toGetSecretResponse,
+} from "../../test/fixtures.ts";
 import { toSafeSecretFields } from "./safe-secret-fields.ts";
 
 describe("toSafeSecretFields", () => {
@@ -32,5 +36,19 @@ describe("toSafeSecretFields", () => {
       Name: input.Name,
       VersionId: input.VersionId,
     });
+  });
+
+  it("never allows SecretString or SecretBinary", () => {
+    const input: GetSecretValueResponse = {
+      Name: "example/test/string",
+      SecretString: EXAMPLE_STRING,
+      SecretBinary: EXAMPLE_STRING_BUFFER,
+    };
+    const actual = toSafeSecretFields(input, [
+      "Name",
+      "SecretBinary",
+      "SecretString",
+    ]);
+    assert.deepStrictEqual(actual, { Name: input.Name });
   });
 });
