@@ -3,12 +3,12 @@ import { InvalidSecretError } from "../errors.ts";
 
 export type SecretString = {
   type: "string";
-  content: string;
+  SecretString: string;
 };
 
 export type SecretBinary = {
   type: "binary";
-  content: Uint8Array;
+  SecretBinary: Uint8Array;
 };
 
 export type SecretContent = SecretString | SecretBinary;
@@ -28,12 +28,12 @@ export function getSecretContent(
     }
     return {
       type: "string",
-      content: input.SecretString,
+      SecretString: input.SecretString,
     };
   } else if (typeof input.SecretBinary !== "undefined") {
     return {
       type: "binary",
-      content: input.SecretBinary,
+      SecretBinary: input.SecretBinary,
     };
   } else {
     return null;

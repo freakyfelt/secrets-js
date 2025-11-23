@@ -1,4 +1,7 @@
-import { ResourceNotFoundException } from "@aws-sdk/client-secrets-manager";
+import {
+  GetSecretValueCommandOutput,
+  ResourceNotFoundException,
+} from "@aws-sdk/client-secrets-manager";
 import assert from "node:assert";
 import { after, before, describe, it } from "node:test";
 import { inspect } from "node:util";
@@ -47,17 +50,33 @@ describe("SecretsFetcher", async () => {
 
   describe("fetch", () => {
     it("returns the SecretValue for the string ARN", async () => {
+      const { $metadata: clientMetadata, ...clientRes } =
+        await client.getSecretValue({
+          SecretId: stringArn,
+        });
       const res = await fetcher.fetch(stringArn);
 
-      assert.equal(res.arn, stringArn);
+      const { $metadata: fetcherMetadata, ...raw } =
+        (await res.raw()) as GetSecretValueCommandOutput;
+      assert.deepEqual(raw, clientRes);
+
+      console.log({ clientMetadata, fetcherMetadata });
+
+      assert.equal(res.ARN, stringArn);
+      assert.equal(res.Name, clientRes.Name);
+      assert.equal(res.VersionId, clientRes.VersionId);
+      assert.deepEqual(res.VersionStages, clientRes.VersionStages);
+      assert.deepEqual(res.CreatedDate, clientRes.CreatedDate);
+      const stringVal = await res.text();
+      assert.equal(stringVal, EXAMPLE_STRING);
     });
 
     it("still redacts to the expected value", async () => {
       const res = await fetcher.fetch(stringArn);
       const raw = await res.raw();
 
-      const { ARN, Name, VersionId, VersionStages } = raw;
-      const expected = `SecretValue(string) ${inspect({ ARN, Name, VersionId, VersionStages })}`;
+      const { Name, VersionId } = raw;
+      const expected = `SecretValue(string) ${inspect({ Name, VersionId })}`;
       const actual = inspect(res);
 
       assert.equal(actual, expected);
@@ -66,7 +85,7 @@ describe("SecretsFetcher", async () => {
     it("returns the SecretValue for the buffer ARN", async () => {
       const res = await fetcher.fetch(bufferArn);
 
-      assert.equal(res.arn, bufferArn);
+      assert.equal(res.ARN, bufferArn);
     });
 
     it("with an invalid ARN throws the underlying ResourceNotFoundException", async () => {

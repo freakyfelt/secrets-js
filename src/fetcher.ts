@@ -13,8 +13,8 @@ export class SecretsFetcher {
    * @param input
    * @returns the resolved secret
    */
-  async fetchString(secretId: string, opts?: FetchOptions): Promise<string> {
-    const res = await this.fetch(secretId, opts);
+  async fetchString(SecretId: string, opts?: FetchOptions): Promise<string> {
+    const res = await this.fetch(SecretId, opts);
 
     return res.text();
   }
@@ -22,16 +22,16 @@ export class SecretsFetcher {
   /**
    * Shorthand method for fetching the JSON representation of the SecretString
    */
-  async fetchJson(secretId: string, opts?: FetchOptions): Promise<unknown> {
-    const res = await this.fetch(secretId, opts);
+  async fetchJson(SecretId: string, opts?: FetchOptions): Promise<unknown> {
+    const res = await this.fetch(SecretId, opts);
 
     return res.json();
   }
 
-  async fetch(secretId: string, opts?: FetchOptions): Promise<SecretValue> {
+  async fetch(SecretId: string, opts?: FetchOptions): Promise<SecretValue> {
     const res = await this.client.getSecretValue({
       ...opts,
-      SecretId: secretId,
+      SecretId,
     });
 
     return new SecretValue(res);
