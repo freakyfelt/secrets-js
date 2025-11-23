@@ -1,4 +1,12 @@
-import { SecretsManager as AWSSecretsManager } from "@aws-sdk/client-secrets-manager";
+import type {
+  SecretsManager as AWSSecretsManager,
+  GetSecretValueResponse,
+} from "@aws-sdk/client-secrets-manager";
+
+export type GetSecretValueMetadata = Omit<
+  GetSecretValueResponse,
+  "SecretString" | "SecretBinary"
+>;
 
 export type SecretsManager = Pick<AWSSecretsManager, "getSecretValue">;
 

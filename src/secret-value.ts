@@ -1,10 +1,10 @@
-import { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
+import type { GetSecretValueResponse } from "@aws-sdk/client-secrets-manager";
 import {
   InvalidSecretError,
   SecretParseError,
   UnsupportedOperationError,
 } from "./errors.ts";
-import { SecretPayloadType } from "./types.ts";
+import type { GetSecretValueMetadata, SecretPayloadType } from "./types.ts";
 import { getSecretContent, SecretContent } from "./utils/secret-content.ts";
 import { deepCopySecretValueCommandOutput } from "./utils/secret-copier.ts";
 
@@ -102,6 +102,29 @@ export class SecretValue {
     }
 
     return this.#content.type;
+  }
+
+  /**
+   * Returns non-sensitive metadata about the secret
+   *
+   * Current fields:
+   *
+   * - ARN
+   * - Name
+   * - VersionId
+   * - VersionStages
+   * - CreatedDate
+   */
+  metadata(): GetSecretValueMetadata {
+    const { ARN, CreatedDate, Name, VersionId, VersionStages } = this.#input;
+
+    return deepCopySecretValueCommandOutput({
+      ARN,
+      Name,
+      VersionId,
+      VersionStages,
+      CreatedDate,
+    });
   }
 
   /**

@@ -47,6 +47,8 @@ dbCreds.VersionId // => "${uuid}"
 dbCreds.VersionStages // => ["AWSCURRENT"]
 dbCreds.CreatedDate // => Date
 
+dbCreds.metadata() // => { ARN, Name, VersionId, VersionStages, CreatedDate }
+
 // "string" if the secret was stored as a string, "binary" if the secret was stored as a binary
 dbCreds.payloadType // => "string"
 

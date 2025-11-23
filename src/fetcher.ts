@@ -1,6 +1,6 @@
-import { GetSecretValueRequest } from "@aws-sdk/client-secrets-manager";
+import type { GetSecretValueRequest } from "@aws-sdk/client-secrets-manager";
 import { SecretValue } from "./secret-value.ts";
-import { SecretsManager } from "./types.ts";
+import type { SecretsManager } from "./types.ts";
 
 export type FetchOptions = Omit<GetSecretValueRequest, "SecretId">;
 
