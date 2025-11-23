@@ -235,6 +235,20 @@ describe("SecretValue", () => {
     });
   });
 
+  describe("metadata()", () => {
+    it("with a string secret returns the expected metadata fields", () => {
+      const { SecretString, $metadata, ...expected } = stringSecretRes;
+
+      assert.deepEqual(expected, stringSecret.metadata());
+    });
+
+    it("with a binary secret returns the expected metadata fields", () => {
+      const { SecretBinary, $metadata, ...expected } = stringBinaryRes;
+
+      assert.deepEqual(expected, stringBinarySecret.metadata());
+    });
+  });
+
   describe("bytes()", () => {
     it("returns the expected Buffer", async () => {
       const res = await stringBinarySecret.bytes();
