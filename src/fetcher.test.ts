@@ -60,8 +60,6 @@ describe("SecretsFetcher", async () => {
         (await res.raw()) as GetSecretValueCommandOutput;
       assert.deepEqual(raw, clientRes);
 
-      console.log({ clientMetadata, fetcherMetadata });
-
       assert.equal(res.ARN, stringArn);
       assert.equal(res.Name, clientRes.Name);
       assert.equal(res.VersionId, clientRes.VersionId);
