@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/freakyfelt/secrets-js/compare/v1.0.0...v1.1.0) (2025-11-23)
+
+
+### Features
+
+* add Name, VersionId, VersionStages, and version stage helper methods ([#6](https://github.com/freakyfelt/secrets-js/issues/6)) ([c64592f](https://github.com/freakyfelt/secrets-js/commit/c64592f572f0a3d85b0a11c01950a81dfe48aa6f))
+
 ## 1.0.0 (2025-11-20)
 
 
