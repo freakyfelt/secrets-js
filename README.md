@@ -10,15 +10,15 @@ Some goals:
 
 * **Keep it secure**
   * use native JS private fields to prevent accidental console output
-  * return copies of data to avoid poisoning
+  * return copies of data (especially objects/arrays) to avoid poisoning
   * do not let exceptions bubble up where secret material is present
 * **Keep it natural**: make fetching secrets as easy as using `fetch()`
   * includes `text()`, `json()`, and `bytes()` methods with safer exception handling
   * handles switching between `SecretString` and `SecretBinary` where possible
 * **Keep it simple**: aim to keep layers of indirection minimal
-  * Keep variable names close to the same (e.g. `secretId` when the API field is `SecretId`)
+  * Keep variable names close to the same (e.g. use `SecretId` when the API field is `SecretId`)
   * Let AWS-provided exceptions bubble up when safe to do so
-  * Provides the `raw()` response
+  * Provides the `raw()` response for cases where the underlying command output is needed
 
 ## Getting started
 
@@ -39,9 +39,13 @@ Once initialized you are able to call the `fetch()` method with the ARN of the s
 // returns a SecretValue
 const dbCreds = await secretsFetcher.fetch("arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c");
 
-// Will output "SecretValue(string) { ARN: "...", Name: "...", VersionId: "...", VersionStages: [...] }" instead of the raw input object
+// Will output "SecretValue(string) { Name: "...", VersionId: "..." }" instead of the raw input object
 console.log(dbCreds)
-dbCreds.arn // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
+dbCreds.ARN // => "arn:aws:secretsmanager:us-east-1:01234567890:secret:my_project/test/pg_credentials-1a2b3c"
+dbCreds.Name // => "my_project/test/pg_credentials"
+dbCreds.VersionId // => "${uuid}"
+dbCreds.VersionStages // => ["AWSCURRENT"]
+dbCreds.CreatedDate // => Date
 
 // "string" if the secret was stored as a string, "binary" if the secret was stored as a binary
 dbCreds.payloadType // => "string"
@@ -77,7 +81,17 @@ By default the `fetch()` method and its cohorts work fine with only providing th
 const awsPrevious = await secretsFetcher.fetch(arn, { VersionStage: "AWSPREVIOUS" });
 // same as not specifying the version stage
 const awsCurrent = await secretsFetcher.fetch(arn, { VersionStage: "AWSCURRENT" });
+// fetch a pinned version of a secret using its VersionId
+const pinnedVersion = await secretsFetcher.fetch(arn, { VersionId: versionId });
 ```
 
+### Working with version stages 
+
+SecretValue includes some helper methods work with VersionStages:
+
+- `SecretValue#isAWSCurrent()`: Returns true if the secret is the current version.
+- `SecretValue#isAWSPrevious()`: Returns true if the secret is the previous version.
+- `SecretValue#isAWSPending()`: Returns true if the secret is pending rotation.
+- `SecretValue#hasVersionStage(stage)`: Returns true if the secret has the specified version stage.
 
 [aws:getsecretvalue]: https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
