@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/freakyfelt/secrets-js/compare/v1.1.0...v1.2.0) (2025-11-23)
+
+
+### Features
+
+* add SecretValue.metadata() for non-sensitive fields ([#8](https://github.com/freakyfelt/secrets-js/issues/8)) ([aea1617](https://github.com/freakyfelt/secrets-js/commit/aea1617637d73cfcda21123e038c2f8ea73f405e))
+
 ## [1.1.0](https://github.com/freakyfelt/secrets-js/compare/v1.0.0...v1.1.0) (2025-11-23)
 
 
