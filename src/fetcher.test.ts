@@ -1,4 +1,5 @@
 import {
+  SecretsManager as AWSSecretsManager,
   GetSecretValueCommandOutput,
   ResourceNotFoundException,
 } from "@aws-sdk/client-secrets-manager";
@@ -15,10 +16,10 @@ import { LocalSecretsManager } from "../test/local-secrets-manager.ts";
 import { InvalidSecretError, SecretParseError } from "./errors.ts";
 import { SecretsFetcher } from "./fetcher.ts";
 
-describe("SecretsFetcher", async () => {
-  const container = await new LocalSecretsManager().start();
-  const client = container.getClient();
-  const fetcher = new SecretsFetcher(client);
+describe("SecretsFetcher", () => {
+  let container: LocalSecretsManager;
+  let client: AWSSecretsManager;
+  let fetcher: SecretsFetcher;
 
   const fetchRaw = async (secretId: string, ...rest: any) =>
     (await fetcher.fetch(secretId, ...rest)).raw();
@@ -28,6 +29,10 @@ describe("SecretsFetcher", async () => {
   let bufferArn: string;
 
   before(async () => {
+    container = await new LocalSecretsManager().start();
+    client = container.getClient();
+    fetcher = new SecretsFetcher(client);
+
     stringArn = await container.createSecret(
       "secrets/test/fetcher/string_value",
       EXAMPLE_STRING,

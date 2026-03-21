@@ -2,17 +2,29 @@
   "name": "@freakyfelt/secrets-js",
   "version": "1.2.0",
   "description": "Client library to make secrets fetching easy and safe",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "tsup --clean",
-    "ci": "npm run clean && npm run test:ci && npm run lint && npm run format:check && npm run build",
+    "build": "tsdown",
+    "build:check": "tsdown --publint --attw",
+    "prepublishOnly": "npm run build && npm run build:check",
+    "ci": "npm run types:check && npm run test:ci && npm run lint && npm run format:check && npm run build",
     "clean": "rm -rf dist",
     "format": "prettier -w src test",
     "format:check": "prettier -c src test",
     "lint": "tsc && npm run format:check",
-    "prepublishOnly": "npm run build",
     "test": "tsx --test src/*.test.ts src/**/*.test.ts && npm run format",
-    "test:ci": "tsx --test src/*.test.ts src/**/*.test.ts"
+    "test:ci": "tsx --test src/*.test.ts src/**/*.test.ts",
+    "types:check": "tsc --noEmit"
   },
   "keywords": [
     "aws",
@@ -22,32 +34,21 @@
   ],
   "author": "Bruce Felt",
   "license": "MIT",
-  "type": "module",
   "files": [
     "dist/**/*"
   ],
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "require": "./dist/index.cjs"
-      }
-    }
-  },
   "peerDeependencies": {
     "@aws-sdk/client-secrets-manager": "3.x"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
     "@aws-sdk/client-secrets-manager": "^3.936.0",
     "@testcontainers/localstack": "^11.8.1",
     "@tsconfig/node22": "^22.0.5",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.3.0",
-    "tsup": "^8.5.1",
+    "publint": "^0.3.18",
+    "tsdown": "^0.21.3",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
