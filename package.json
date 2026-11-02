@@ -3,6 +3,9 @@
   "version": "1.2.0",
   "description": "Client library to make secrets fetching easy and safe",
   "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",

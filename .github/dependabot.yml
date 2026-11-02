@@ -11,6 +11,18 @@ updates:
       interval: "weekly"
     labels:
       - dependencies
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
     groups:
+      typescript:
+        patterns:
+          - "typescript"
+          - "@tsconfig/node*"
+        update-types:
+          - "minor"
+          - "patch"
+        dependency-type: "development"
       development:
         dependency-type: "development"
