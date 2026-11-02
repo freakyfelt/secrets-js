@@ -11,10 +11,6 @@ updates:
       interval: "weekly"
     labels:
       - dependencies
-    ignore:
-      - dependency-name: "typescript"
-        update-types:
-          - "version-update:semver-major"
     groups:
       typescript:
         patterns:
@@ -24,5 +20,35 @@ updates:
           - "minor"
           - "patch"
         dependency-type: "development"
+      formatting:
+        patterns:
+          - "prettier"
+          - "prettier-plugin-*"
+        update-types:
+          - "minor"
+          - "patch"
+        dependency-type: "development"
+      build:
+        patterns:
+          - "tsdown"
+          - "publint"
+          - "@arethetypeswrong/core"
+        update-types:
+          - "minor"
+          - "patch"
+        dependency-type: "development"
+      test:
+        patterns:
+          - "@aws-sdk/*"
+          - "@testcontainers/*"
+        update-types:
+          - "minor"
+          - "patch"
+        dependency-type: "development"
       development:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
         dependency-type: "development"
